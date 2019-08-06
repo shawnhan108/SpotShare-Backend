@@ -14,6 +14,43 @@ const postSchema = new Schema({
         type: String,
         required: true
     },
+    taken_date: {
+        type: Date,
+        required: true
+    },
+    location: {
+        type: String,
+        required: true
+    },
+
+    ISO: {
+        type: Number,
+        required: true
+    },
+    shutter_speed: {
+        type: String,
+        required: true
+    },
+    aperture: {
+        type: String,
+        required: true
+    },
+    camera: {
+        type: String,
+        required: true
+    },
+    lens: {
+        type: String,
+        required: true
+    },
+    equipment: {
+        type: String,
+        required: true
+    },
+    edit_soft: {
+        type: String,
+        required: true
+    },
     creator: {
         type: Schema.Types.ObjectId,
         ref: 'User',

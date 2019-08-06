@@ -49,12 +49,32 @@ exports.createPost = async (req, res, next) => {
     const imageUrl = req.file.path;
     const title = req.body.title;
     const content = req.body.content;
+    const date = req.body.date;
+    const location = req.body.location;
+    const iso = req.body.iso;
+    const shutspeed = req.body.shutterspeed;
+    const ap = req.body.aperture;
+    const cam = req.body.camera;
+    const lens = req.body.lens;
+    const equip = req.body.equipments;
+    const soft = req.body.editing_softwares;
+
     const post = new Post({
         title: title,
         content: content,
         imageUrl: imageUrl,
+        taken_date: date,
+        location: location,
+        ISO: iso,
+        shutter_speed: shutspeed,
+        aperture: ap,
+        camera: cam,
+        lens: lens,
+        equipment: equip,
+        edit_soft: soft,
         creator: req.userId
     });
+    
     try {
         await post.save();
         const user = await User.findById(req.userId);
