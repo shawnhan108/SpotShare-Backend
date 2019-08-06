@@ -6,32 +6,28 @@ const io = require('../socket');
 const Post = require('../models/post');
 const User = require('../models/user');
 
-exports.getPosts = (req, res, next) => {
+exports.getPosts = async (req, res, next) => {
     const currentPage = req.query.page || 1;
     const perPage = 2;
-    let totalItems;
-    Post.find().countDocuments()
-        .then(doc_num => {
-            totalItems = doc_num;
-            return Post.find()
-                .populate('creator')
-                .sort({ createdAt: -1 })
-                .skip((currentPage - 1) * perPage)
-                .limit(perPage);
-        })
-        .then(posts => {
-            res.status(200).json({
-                message: 'Fetched posts succesfully.',
-                posts: posts,
-                totalItems: totalItems
-            });
-        })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
+    try {
+        const totalItems = await Post.find().countDocuments();
+        const posts = await Post.find()
+            .populate('creator')
+            .sort({ createdAt: -1 })
+            .skip((currentPage - 1) * perPage)
+            .limit(perPage);
+
+        res.status(200).json({
+            message: 'Fetched posts successfully.',
+            posts: posts,
+            totalItems: totalItems
         });
+    } catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 };
 
 exports.createPost = async (req, res, next) => {
@@ -49,21 +45,21 @@ exports.createPost = async (req, res, next) => {
     const imageUrl = req.file.path;
     const title = req.body.title;
     const content = req.body.content;
-    const date = req.body.date;
+    const taken_date = req.body.taken_date;
     const location = req.body.location;
-    const iso = req.body.iso;
-    const shutspeed = req.body.shutterspeed;
+    const iso = req.body.ISO;
+    const shutspeed = req.body.shutter_speed;
     const ap = req.body.aperture;
     const cam = req.body.camera;
     const lens = req.body.lens;
-    const equip = req.body.equipments;
-    const soft = req.body.editing_softwares;
+    const equip = req.body.equipment;
+    const soft = req.body.edit_soft;
 
     const post = new Post({
         title: title,
         content: content,
         imageUrl: imageUrl,
-        taken_date: date,
+        taken_date: taken_date,
         location: location,
         ISO: iso,
         shutter_speed: shutspeed,
@@ -74,7 +70,7 @@ exports.createPost = async (req, res, next) => {
         edit_soft: soft,
         creator: req.userId
     });
-    
+
     try {
         await post.save();
         const user = await User.findById(req.userId);
@@ -129,16 +125,26 @@ exports.updatePost = async (req, res, next) => {
     const postId = req.params.postId;
     const title = req.body.title;
     const content = req.body.content;
-    let imageUrl = req.body.image;
-    if (req.file) {
-        imageUrl = req.file.path;
-    }
-    if (!imageUrl) {
-        const error = new Error('No file picked');
-        error.statusCode = 422;
-        throw error;
-    }
+    const taken_date = req.body.taken_date;
+    const location = req.body.location;
+    const iso = req.body.ISO;
+    const shutspeed = req.body.shutter_speed;
+    const ap = req.body.aperture;
+    const cam = req.body.camera;
+    const lens = req.body.lens;
+    const equip = req.body.equipment;
+    const soft = req.body.edit_soft;
     try {
+        let post_temp = await Post.findById(postId)
+        let imageUrl = post_temp.imageUrl
+        if (req.file) {
+            imageUrl = req.file.path;
+        }
+        if (!imageUrl) {
+            const error = new Error('No file picked.');
+            error.statusCode = 422;
+            throw error;
+        }
         const post = await Post.findById(postId).populate('creator');
         if (!post) {
             const error = new Error('Could not find post');
@@ -156,6 +162,15 @@ exports.updatePost = async (req, res, next) => {
         post.title = title;
         post.imageUrl = imageUrl;
         post.content = content;
+        post.taken_date = taken_date;
+        post.location = location;
+        post.ISO = iso;
+        post.shutter_speed = shutspeed;
+        post.aperture = ap;
+        post.camera = cam;
+        post.lens = lens;
+        post.equipment = equip;
+        post.edit_soft = soft;
         const result = await post.save();
         io.getIO().emit('posts', {
             action: 'update',
@@ -175,7 +190,7 @@ exports.updatePost = async (req, res, next) => {
 
 exports.deletePost = async (req, res, next) => {
     const postId = req.params.postId;
-    try{
+    try {
         post = await Post.findById(postId)
         if (!post) {
             const error = new Error('Could not find post');
@@ -199,7 +214,7 @@ exports.deletePost = async (req, res, next) => {
         res.status(200).json({
             message: 'Deleted post.'
         });
-    }catch(err){
+    } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
         }

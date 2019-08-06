@@ -15,7 +15,7 @@ const postSchema = new Schema({
         required: true
     },
     taken_date: {
-        type: Date,
+        type: String,
         required: true
     },
     location: {
