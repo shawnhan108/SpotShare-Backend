@@ -126,7 +126,7 @@ exports.updatePost = async (req, res, next) => {
     const title = req.body.title;
     const content = req.body.content;
     const taken_date = req.body.taken_date;
-    const location = req.body.location;
+    const location = JSON.parse(req.body.location);
     const iso = req.body.ISO;
     const shutspeed = req.body.shutter_speed;
     const ap = req.body.aperture;
