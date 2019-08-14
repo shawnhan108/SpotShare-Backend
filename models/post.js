@@ -22,7 +22,7 @@ const postSchema = new Schema({
         type: Object,
         required: true
     },
-
+    
     ISO: {
         type: Number,
         required: true

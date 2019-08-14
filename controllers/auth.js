@@ -2,6 +2,8 @@ const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const io = require('../socket');
+const Post = require('../models/post');
 const User = require('../models/user');
 
 exports.signup = (req, res, next) => {
@@ -75,46 +77,99 @@ exports.login = (req, res, next) => {
 };
 
 exports.getUserStatus = (req, res, next) => {
-    User.findById(req.userId)
+  User.findById(req.userId)
     .then(user => {
-        if (!user){
-            const error = new Error('User not found!');
-            error.statusCode = 404;
-            throw error;
-        }
-        res.status(200).json({
-            status: user.status
-        })
+      if (!user) {
+        const error = new Error('User not found!');
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({
+        status: user.status
+      })
     })
     .catch(err => {
-        if (!err.statusCode) {
-          err.statusCode = 500;
-        }
-        next(err);
-      });
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
 };
 
 exports.updateUserStatus = (req, res, next) => {
-    const newStatus = req.body.status;
-    User.findById(req.userId)
+  const newStatus = req.body.status;
+  User.findById(req.userId)
     .then(user => {
-        if (!user){
-            const error = new Error('User not found!');
-            error.statusCode = 404;
-            throw error;
-        }
-        user.status = newStatus;
-        return user.save();
+      if (!user) {
+        const error = new Error('User not found!');
+        error.statusCode = 404;
+        throw error;
+      }
+      user.status = newStatus;
+      return user.save();
     })
     .then(result => {
-        res.status(200).json({
-            message: 'User updated!!'
-        })
+      res.status(200).json({
+        message: 'User updated!!'
+      })
     })
     .catch(err => {
-        if (!err.statusCode) {
-          err.statusCode = 500;
-        }
-        next(err);
-      });
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
+exports.getUserBucket = (req, res, next) => {
+  User.findById(req.userId)
+    .then(user => {
+      if (!user) {
+        const error = new Error('User not found!');
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({
+        bucket: user.bucket
+      })
+    })
+    .catch(err => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
+exports.updateUserBucket = async (req, res, next) => {
+  const postId = req.params.postId;
+  try{
+    newBucket = await Post.findById(postId)
+    user = await User.findById(req.userId);
+    if (!newBucket) {
+      const error = new Error('Could not find post');
+      error.statusCode = 404;
+      throw error;
+    }
+    if (!user) {
+      const error = new Error('User not found!');
+      error.statusCode = 404;
+      throw error;
+    }
+    user.bucket.addToSet(newBucket);
+    await user.save();
+    io.getIO().emit('bucket', {
+      action: 'add',
+      bucket: newBucket
+    })
+    res.status(201).json({
+      message: 'Bucket added successfully!',
+      bucket: newBucket
+    });
+  }catch(err) {
+    if (!err.statusCode) {
+        err.statusCode = 500;
+    }
+    next(err);
+  }
 };

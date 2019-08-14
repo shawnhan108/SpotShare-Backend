@@ -33,6 +33,10 @@ router.get('/status', isAuth, authController.getUserStatus);
 
 router.patch('/status', isAuth, [
     body('status').trim().not().isEmpty()
-], authController.updateUserStatus)
+], authController.updateUserStatus);
+
+router.get('/bucket', isAuth, authController.getUserBucket);
+
+router.post('/bucket/:postId', isAuth, authController.updateUserBucket);
 
 module.exports = router;

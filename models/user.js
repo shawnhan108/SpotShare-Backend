@@ -21,6 +21,10 @@ const userSchema = new Schema({
     posts: [{
         type: Schema.Types.ObjectId,
         ref: 'Post'
+    }],
+    bucket: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Bucket'
     }]
 });
 
