@@ -46,7 +46,7 @@ exports.createPost = async (req, res, next) => {
     const title = req.body.title;
     const content = req.body.content;
     const taken_date = req.body.taken_date;
-    const location = req.body.location;
+    const location = JSON.parse(req.body.location);
     const iso = req.body.ISO;
     const shutspeed = req.body.shutter_speed;
     const ap = req.body.aperture;
@@ -207,6 +207,13 @@ exports.deletePost = async (req, res, next) => {
         const user = await User.findById(req.userId);
         user.posts.pull(postId);
         await user.save();
+        const users = await User.find();
+        for (var i = 0; i < users.length; i++){
+            if (users[i].bucket.includes(postId)){
+                users[i].bucket.pull(postId);
+                await users[i].save();
+            }
+        }
         io.getIO().emit('posts', {
             action: 'delete',
             post: postId

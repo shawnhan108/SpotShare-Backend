@@ -39,4 +39,6 @@ router.get('/bucket', isAuth, authController.getUserBucket);
 
 router.post('/bucket/:postId', isAuth, authController.updateUserBucket);
 
+router.delete('/bucket/:postId', isAuth, authController.deleteBucket);
+
 module.exports = router;

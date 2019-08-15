@@ -121,29 +121,28 @@ exports.updateUserStatus = (req, res, next) => {
     });
 };
 
-exports.getUserBucket = (req, res, next) => {
-  User.findById(req.userId)
-    .then(user => {
-      if (!user) {
-        const error = new Error('User not found!');
-        error.statusCode = 404;
-        throw error;
-      }
-      res.status(200).json({
-        bucket: user.bucket
-      })
-    })
-    .catch(err => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+exports.getUserBucket = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      const error = new Error('User not found!');
+      error.statusCode = 404;
+      throw error;
+    }
+    res.status(200).json({
+      bucket: user.bucket
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
 };
 
 exports.updateUserBucket = async (req, res, next) => {
   const postId = req.params.postId;
-  try{
+  try {
     newBucket = await Post.findById(postId)
     user = await User.findById(req.userId);
     if (!newBucket) {
@@ -166,9 +165,41 @@ exports.updateUserBucket = async (req, res, next) => {
       message: 'Bucket added successfully!',
       bucket: newBucket
     });
-  }catch(err) {
+  } catch (err) {
     if (!err.statusCode) {
-        err.statusCode = 500;
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.deleteBucket = async (req, res, next) => {
+  const postId = req.params.postId;
+  try {
+    bucketToDelete = await Post.findById(postId)
+    user = await User.findById(req.userId);
+    if (!bucketToDelete) {
+      const error = new Error('Could not find post');
+      error.statusCode = 404;
+      throw error;
+    }
+    if (!user) {
+      const error = new Error('User not found!');
+      error.statusCode = 404;
+      throw error;
+    }
+    user.bucket.pull(postId);
+    await user.save();
+    io.getIO().emit('bucket', {
+      action: 'delete',
+      post: postId
+    })
+    res.status(200).json({
+      message: 'Deleted post from bucket.'
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
     }
     next(err);
   }
