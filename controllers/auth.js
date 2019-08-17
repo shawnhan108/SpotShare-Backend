@@ -84,9 +84,9 @@ exports.getUserObj = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    res.status(200).json({
+    return res.status(200).json({
       userObj: user
-    })
+    });
   }catch(err){
     if (!err.statusCode) {
       err.statusCode = 500;
