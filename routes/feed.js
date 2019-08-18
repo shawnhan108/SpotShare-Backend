@@ -11,11 +11,14 @@ router.get('/posts', isAuth, feedController.getPosts);
 
 router.get('/all-posts', isAuth, feedController.getAllPosts);
 
+router.get('/bucket-num/:postId', isAuth, feedController.getBucketNum);
+
+router.patch('/bucket-num/:postId', isAuth, feedController.updateBucketNum);
+
 router.post('/posts', isAuth, [
     body('title').trim().isLength({ min: 5 }),
     body('content').trim().isLength({ min: 5 })
 ], feedController.createPost);
-
 
 router.get('/post/:postId', isAuth, feedController.getPost);
 

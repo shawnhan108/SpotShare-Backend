@@ -88,7 +88,8 @@ exports.createPost = async (req, res, next) => {
         lens: lens,
         equipment: equip,
         edit_soft: soft,
-        creator: req.userId
+        creator: req.userId,
+        bucket_num: 0
     });
 
     try {
@@ -154,6 +155,7 @@ exports.updatePost = async (req, res, next) => {
     const lens = req.body.lens;
     const equip = req.body.equipment;
     const soft = req.body.edit_soft;
+
     try {
         let post_temp = await Post.findById(postId)
         let imageUrl = post_temp.imageUrl
@@ -249,8 +251,51 @@ exports.deletePost = async (req, res, next) => {
     }
 }
 
-
 const clearImage = filePath => {
     filePath = path.join(__dirname, '..', filePath);
     fs.unlink(filePath, err => console.log(err));
 }
+
+exports.getBucketNum = async (req, res, next) => {
+    postId = req.params.postId;
+    try {
+        post = await Post.findById(postId)
+        if (!post) {
+            const error = new Error('Could not find post');
+            error.statusCode = 404;
+            throw error;
+        }
+        res.status(200).json({
+            message: 'Fetched posts successfully.',
+            bucketNum: post.bucket_num
+        });
+    } catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};
+
+exports.updateBucketNum = async (req, res, next) => {
+    postId = req.params.postId;
+    const newBucketNum = req.body.newBucketNum;
+    try{
+        post = await Post.findById(postId)
+        if (!post) {
+            const error = new Error('Could not find post');
+            error.statusCode = 404;
+            throw error;
+        }
+        post.bucket_num = newBucketNum;
+        await post.save();
+        res.status(200).json({
+            message: 'Bucket Number updated!!'
+          });
+    }catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+  };

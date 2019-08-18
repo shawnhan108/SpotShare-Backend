@@ -55,6 +55,9 @@ const postSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    bucket_num: {
+        type: Number
     }
 }, {timestamps: true});
 
