@@ -289,6 +289,10 @@ exports.updateBucketNum = async (req, res, next) => {
         }
         post.bucket_num = newBucketNum;
         await post.save();
+        io.getIO().emit('bucket', {
+            action: 'update',
+            newBucketNum: newBucketNum
+        })
         res.status(200).json({
             message: 'Bucket Number updated!!'
           });
