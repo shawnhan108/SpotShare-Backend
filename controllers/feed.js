@@ -74,6 +74,7 @@ exports.createPost = async (req, res, next) => {
     const lens = req.body.lens;
     const equip = req.body.equipment;
     const soft = req.body.edit_soft;
+    const user_rate = req.body.user_rate;
 
     const post = new Post({
         title: title,
@@ -89,7 +90,8 @@ exports.createPost = async (req, res, next) => {
         equipment: equip,
         edit_soft: soft,
         creator: req.userId,
-        bucket_num: 0
+        bucket_num: 0,
+        user_rate: user_rate
     });
 
     try {
@@ -155,6 +157,7 @@ exports.updatePost = async (req, res, next) => {
     const lens = req.body.lens;
     const equip = req.body.equipment;
     const soft = req.body.edit_soft;
+    const user_rate = req.body.user_rate;
 
     try {
         let post_temp = await Post.findById(postId)
@@ -193,6 +196,7 @@ exports.updatePost = async (req, res, next) => {
         post.lens = lens;
         post.equipment = equip;
         post.edit_soft = soft;
+        post.user_rate = user_rate;
         const result = await post.save();
         io.getIO().emit('posts', {
             action: 'update',

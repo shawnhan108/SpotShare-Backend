@@ -58,6 +58,10 @@ const postSchema = new Schema({
     },
     bucket_num: {
         type: Number
+    },
+    user_rate: {
+        type: Number, 
+        requred: true
     }
 }, {timestamps: true});
 
