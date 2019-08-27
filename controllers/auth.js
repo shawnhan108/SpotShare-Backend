@@ -223,3 +223,74 @@ exports.deleteBucket = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getUserRatings = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      const error = new Error('Ratings not found!');
+      error.statusCode = 404;
+      throw error;
+    }
+    res.status(200).json({
+      ratings: user.ratings
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.updateUserRating = async (req, res, next) => {
+  const postId = req.body.postId;
+  const rating = req.body.rating;
+  const comment = req.body.comment;
+  var changed = false;
+  try {
+    user = await User.findById(req.params.userId);
+    if (!user) {
+      const error = new Error('User not found!');
+      error.statusCode = 404;
+      throw error;
+    }
+    for (i = 0; i < user.ratings.length; i++){
+      if (user.ratings[i].post == postId){
+        user.ratings[i].rating = rating;
+        user.ratings[i].comment = comment;
+        changed = true;
+        await user.save();
+        break;
+      }
+    }
+    if (!changed){
+      user.ratings.addToSet({
+        post: postId,
+        rating: rating,
+        comment: comment
+      });
+      await user.save();
+    }
+    io.getIO().emit('bucket', {
+      action: 'add',
+      rating: {
+        post: postId,
+        rating: rating
+      }
+    })
+    res.status(201).json({
+      message: 'Rating updated successfully!',
+      rating: {
+        post: postId,
+        rating: rating,
+        comment: comment
+      }
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};

@@ -25,7 +25,19 @@ const userSchema = new Schema({
     bucket: [{
         type: Schema.Types.ObjectId,
         ref: 'Bucket'
-    }]
+    }],
+    ratings: {
+        type:[{
+        post: {
+            type: Schema.Types.ObjectId
+        },
+        rating: {
+            type: Number
+        }, 
+        comment: {
+            type: String
+        }
+    }]}
 });
 
 module.exports = mongoose.model('User', userSchema);

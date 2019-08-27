@@ -91,7 +91,9 @@ exports.createPost = async (req, res, next) => {
         edit_soft: soft,
         creator: req.userId,
         bucket_num: 0,
-        user_rate: user_rate
+        user_rate: user_rate,
+        rating: 0,
+        rating_num: 0
     });
 
     try {
@@ -299,6 +301,85 @@ exports.updateBucketNum = async (req, res, next) => {
         })
         res.status(200).json({
             message: 'Bucket Number updated!!'
+          });
+    }catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+  };
+
+  exports.getRating = async (req, res, next) => {
+    postId = req.params.postId;
+    try {
+        post = await Post.findById(postId);
+        if (!post) {
+            const error = new Error('Could not find post');
+            error.statusCode = 404;
+            throw error;
+        }
+        var post_ratings = []
+        for (var i = 0; i < post.ratings.length; i++){
+            curUser = await User.findOne({ _id: post.ratings[i].userId });
+            for (var j = 0; j < curUser.ratings.length; j++){
+                if (curUser.ratings[j]._id.equals(post.ratings[i].rating)){
+                    post_ratings.push({
+                        user: curUser.name,
+                        rating: curUser.ratings[j].rating,
+                        comment: curUser.ratings[j].comment});
+                }
+            }
+        }       
+        res.status(200).json({
+            message: 'Fetched post rating successfully.',
+            ratings: post_ratings
+        });
+    } catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};
+
+exports.updateRating = async (req, res, next) => {
+    postId = req.params.postId;
+    const userId = req.body.userId;
+    const newRatingId = req.body.ratingId;
+    var changed = false;
+    try{
+        post = await Post.findById(postId)
+        if (!post) {
+            const error = new Error('Could not find post');
+            error.statusCode = 404;
+            throw error;
+        }
+        for (var i = 0; i < post.ratings.length; i++){
+            if (post.ratings[i].userId.equals(userId)){
+                post.ratings[i].rating = newRatingId;
+                await post.save();
+                changed = true;
+                break;
+            }
+        }
+        if (!changed){
+            const newRating = {
+                userId: userId,
+                rating: newRatingId
+            }
+            post.ratings.push(newRating);
+            await post.save();
+        }
+        io.getIO().emit('bucket', {
+            action: 'update',
+            newRating: {
+                userId: userId,
+                rating: newRatingId
+            }
+        });
+        res.status(200).json({
+            message: 'Post rating updated!!'
           });
     }catch (err) {
         if (!err.statusCode) {

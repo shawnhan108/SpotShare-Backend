@@ -43,4 +43,8 @@ router.post('/bucket/:postId', isAuth, authController.updateUserBucket);
 
 router.delete('/bucket/:postId', isAuth, authController.deleteBucket);
 
+router.get('/ratings/:userId', isAuth, authController.getUserRatings);
+
+router.post('/ratings/:userId', isAuth, authController.updateUserRating);
+
 module.exports = router;

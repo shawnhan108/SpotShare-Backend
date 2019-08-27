@@ -15,6 +15,10 @@ router.get('/bucket-num/:postId', isAuth, feedController.getBucketNum);
 
 router.patch('/bucket-num/:postId', isAuth, feedController.updateBucketNum);
 
+router.get('/rating/:postId', isAuth, feedController.getRating);
+
+router.patch('/rating/:postId', isAuth, feedController.updateRating);
+
 router.post('/posts', isAuth, [
     body('title').trim().isLength({ min: 5 }),
     body('content').trim().isLength({ min: 5 })

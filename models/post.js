@@ -62,6 +62,16 @@ const postSchema = new Schema({
     user_rate: {
         type: Number, 
         requred: true
+    },
+    ratings: {
+        type: [{
+            rating: {
+                type: Schema.Types.ObjectId
+            },
+            userId: {
+                type: Schema.Types.ObjectId
+            }
+        }]
     }
 }, {timestamps: true});
 
