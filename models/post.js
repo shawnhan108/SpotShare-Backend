@@ -63,6 +63,14 @@ const postSchema = new Schema({
         type: Number, 
         requred: true
     },
+    rating:{
+        type: Number,
+        required: true
+    },
+    rating_num:{
+        type: Number,
+        required: true
+    },
     ratings: {
         type: [{
             rating: {

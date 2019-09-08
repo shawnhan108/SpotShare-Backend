@@ -285,7 +285,8 @@ exports.updateUserRating = async (req, res, next) => {
         post: postId,
         rating: rating,
         comment: comment
-      }
+      },
+      old_rating: changed
     });
   } catch (err) {
     if (!err.statusCode) {
