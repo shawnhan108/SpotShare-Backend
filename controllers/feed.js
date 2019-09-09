@@ -241,6 +241,12 @@ exports.deletePost = async (req, res, next) => {
                 users[i].bucket.pull(postId);
                 await users[i].save();
             }
+            for (var j = 0; j < users[i].ratings.length; j++){
+                if (users[i].ratings[j].post.equals(postId)){
+                    users[i].ratings.pull(users[i].ratings[j]);
+                   await users[i].save();
+                }
+            }
         }
         io.getIO().emit('posts', {
             action: 'delete',
