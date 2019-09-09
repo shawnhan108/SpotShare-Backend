@@ -350,9 +350,6 @@ exports.updateRating = async (req, res, next) => {
     const isNewRating = req.body.newRating;
     const ratingValue = req.body.value;
     const oldRatingValue = req.body.oldRating;
-    console.log(isNewRating);
-    console.log(ratingValue);
-    console.log(oldRatingValue);
     var changed = false;
     try{
         post = await Post.findById(postId)
@@ -380,7 +377,7 @@ exports.updateRating = async (req, res, next) => {
         if (isNewRating){
             const sum = (post.rating) * (post.rating_num) + Number(ratingValue);
             post.rating_num += 1;
-            post.rating = sum/(post.rating_num + 1);
+            post.rating = sum/(post.rating_num);
             await post.save();
         } else {
             const sum = (post.rating) * (post.rating_num) - Number(oldRatingValue) + Number(ratingValue);
