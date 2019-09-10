@@ -15,7 +15,7 @@ const app = express();
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
 
-const MONGODBKEY = `mongodb+srv://${process.env.npm_package_env_MONGO_USER}:${process.env.npm_package_env_MONGO_PASSWORD}@spotshare-vdna7.mongodb.net/${process.env.npm_package_env_MONGO_DEFAULT_DB}?retryWrites=true&w=majority` ;
+const MONGODBKEY = `mongodb+srv://shawn_admin:OIPyIAyJjw2Xb4uJ@spotshare-vdna7.mongodb.net/posts?retryWrites=true&w=majority`;
 
 const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
