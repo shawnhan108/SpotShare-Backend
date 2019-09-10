@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const cors = require('cors');
+const helmet = require('helmet');
 
 const path = require('path');
 
@@ -10,6 +11,8 @@ const app = express();
 
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
+
+const MONGODBKEY = `mongodb+srv://${process.env.npm_package_env_MONGO_USER}:${process.env.npm_package_env_MONGO_PASSWORD}@spotshare-vdna7.mongodb.net/${process.env.npm_package_env_MONGO_DEFAULT_DB}?retryWrites=true&w=majority` ;
 
 const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -32,6 +35,8 @@ const fileFilter = (req, file, cb) => {
         cb(null, false);
     }
 };
+
+app.use(helmet());
 
 app.use(bodyParser.json());
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
@@ -62,9 +67,9 @@ app.use((error, req, res, next) => {
     res.status(status).json({ message: mes, data: data });
 });
 
-mongoose.connect('mongodb+srv://shawn_admin:OIPyIAyJjw2Xb4uJ@spotshare-vdna7.mongodb.net/posts?retryWrites=true&w=majority')
+mongoose.connect(MONGODBKEY)
     .then(result => {
-    const server = app.listen(8080);
+    const server = app.listen(process.env.PORT || 8080);
     const io = require('./socket').init(server);
     io.on('connection', socket => {
       console.log('Client connected');
